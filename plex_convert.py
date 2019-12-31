@@ -21,7 +21,7 @@ LEVELS = {'debug': logging.DEBUG,
 
 
 baseurl = 'http://localhost:32400'
-token = 'gSo9gxiFQsHS_hKbZgEv'
+token = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 plex = PlexServer(baseurl, token)
 
 FORMAT = '%(asctime)-15s  %(message)s'
