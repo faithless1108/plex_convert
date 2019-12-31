@@ -21,7 +21,7 @@ LEVELS = {'debug': logging.DEBUG,
 
 
 baseurl = 'http://localhost:32400'
-token = 'xxxxxxx_xxxxxxx'
+token = 'gSo9gxiFQsHS_hKbZgEv'
 plex = PlexServer(baseurl, token)
 
 FORMAT = '%(asctime)-15s  %(message)s'
@@ -39,6 +39,13 @@ handler.setFormatter(formatter)
 
 log.addHandler(handler)
 
+if not os.access(outputbase, os.W_OK):
+	print 'Outputpath not writeable. Permissions?'
+	log.error("Outputpath not writeabel")
+	sys.exit(1)
+
+
+
 
 shows = plex.library.section('TV-Serien')
 for show in shows.search():
@@ -52,23 +59,20 @@ for show in shows.search():
 
 
 for item in ep2conv:
-	if item[2] != '720' and item[2] != '1080':
-		continue
-
 	input_file = item[0]
 	output_file = item[1]
-	profile = item[3]+"_"+item[2]
+	profile = item[3]
 	profile_f = profile_path + profile+".json"
-	size_old = (item[4] / (1024 * 1024))
-
+	size_old = (item[4] / (1024 * 1024)) * 1.00
+#Launch Handbrake for File  with lower Niceness (Priortiy)
 	cmd = "nice -n 19 handbrake-cli -i \"%s\"  -o \"%s\" --preset-import-file %s -Z %s " % (input_file, output_file, profile_f, profile)
 	log.info("Begin processing %s -> Size: %d" %(input_file,size_old))
 	p = subprocess.call(cmd, shell=True)
 	if p == 0:
 		file_stats = os.stat(output_file)
-		size_new = file_stats.st_size / (1024 * 1024)
+		size_new = (file_stats.st_size / (1024 * 1024)) * 1.00
 		shutil.move(output_file, input_file)
-		per_saved = round((1 - (size_new / size_old)) *100)
+		per_saved = round((1 - (size_new / size_old)) *100, 2)
 		log.info("Finished  processing %s -> Size: %d ->  Saved: %d"  %(input_file, size_new, per_saved))
 	else:
 		log.error("Somthing went wrong during conversion")
